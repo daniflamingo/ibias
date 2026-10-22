@@ -1,0 +1,14 @@
+# Secrets: never commit your API key
+.env
+
+# Data lives on your disk, not in git
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
