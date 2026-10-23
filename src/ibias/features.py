@@ -12,6 +12,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+from tqdm import tqdm
 
 from ibias import config, store
 from ibias.text import count_terms
@@ -31,7 +32,8 @@ def build_term_counts(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     rows = []
-    for article_id, body in con.execute("SELECT id, body FROM articles").fetchall():
+    articles = con.execute("SELECT id, body FROM articles").fetchall()
+    for article_id, body in tqdm(articles, desc="counting terms", unit=" articles"):
         for term, count in count_terms(body).items():
             rows.append((article_id, term.count(" ") + 1, term, count))
     df = pd.DataFrame(rows, columns=["article_id", "n", "term", "count"])

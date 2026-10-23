@@ -17,6 +17,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import requests
+from tqdm import tqdm
 
 from ibias import config
 
@@ -85,15 +86,14 @@ def fetch_range(start: date, end: date, force: bool = False) -> None:
     """Fetch and save each day from start to end inclusive, skipping days already saved."""
     api_key = config.guardian_api_key()
     session = requests.Session()
-    day = start
-    while day <= end:
+    days = [start + timedelta(days=i) for i in range((end - start).days + 1)]
+    for day in tqdm(days, desc="fetching Guardian", unit=" days"):
         if raw_path(day).exists() and not force:
-            print(f"{day}: already saved, skipping")
-        else:
-            results = fetch_day(day, api_key, session)
-            save_day(day, results)
-            print(f"{day}: saved {len(results)} items")
-        day += timedelta(days=1)
+            continue
+        results = fetch_day(day, api_key, session)
+        save_day(day, results)
+        # tqdm.write prints a line without breaking the progress bar.
+        tqdm.write(f"{day}: saved {len(results)} items")
 
 
 def to_article(item: dict) -> dict | None:

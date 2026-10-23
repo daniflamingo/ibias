@@ -1,0 +1,17 @@
+# Phrases to ignore when building the partisan phrase list, one per line.
+# A line also removes every longer phrase containing it ("five minutes" removes
+# "five minutes ago"). Text after # is a comment. Rerun `ibias phrases` after editing.
+#
+# Everyday English that is partisan in Parliament only because of how debates run:
+two minutes        # speech time limits set by the Speaker
+three minutes
+four minutes
+five minutes
+six minutes
+good news          # ministers announcing things
+huge amount
+people coming
+first step
+former prime       # "former prime minister": who is being talked about, not framing
+left us            # tributes to MPs who have died
+make work

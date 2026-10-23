@@ -10,6 +10,7 @@ dependencies = [
     "pandas>=2.0",
     "pyarrow>=14",
     "python-dotenv>=1.0",
+    "tqdm>=4.66",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+ibias = ["*.txt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

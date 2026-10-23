@@ -20,13 +20,12 @@ def load_counts(column: str = "pillar") -> pd.DataFrame:
     """Term counts joined to an article attribute (section, pillar, ...)."""
     if column not in {"section", "pillar", "outlet"}:
         raise ValueError(f"unsupported column: {column}")
-    con = store.connect()
     path = config.FEATURES_DIR / "term_counts.parquet"
-    return con.execute(f"""
+    return store.query(f"""
         SELECT a.{column} AS grp, t.n, t.term, t.count
         FROM read_parquet('{path.as_posix()}') t
         JOIN articles a ON a.id = t.article_id
-    """).df()
+    """)
 
 
 def top_terms(counts: pd.DataFrame) -> pd.DataFrame:

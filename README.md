@@ -35,6 +35,27 @@ ibias count                                     # 3. count words and phrases
 ibias explore --by pillar --group Opinion       # 4. print top and distinctive terms
 ```
 
+### Stage 1b: partisan phrases from Parliament
+
+```bash
+ibias hansard-fetch --from 2023-07-01 --to 2025-06-30   # Commons debates + MP list (~500 sitting days)
+ibias hansard-load                                      # speeches with each MP's party, into DuckDB
+ibias phrases                                           # top 500 two-word and 500 three-word partisan phrases
+ibias slant --by pillar                                 # Guardian slant per pillar (needs `ibias count` first)
+```
+
+Debates come from [TheyWorkForYou](https://www.theyworkforyou.com/) (mySociety's ParlParse XML,
+one file per sitting day) and parties from ParlParse's `people.json`. `ibias phrases` follows
+Gentzkow & Shapiro: count every two- and three-word phrase said by Labour and by Conservative
+MPs, rank by Pearson's chi-squared, and drop procedural phrases like "hon friend".
+An article's slant is (Labour-leaning phrase uses - Conservative-leaning) / all partisan
+phrase uses, from +1 (all Labour-leaning) to -1 (all Conservative-leaning).
+
+Two cautions: the governing party talks differently from the opposition whoever is in power,
+so pick a date range covering both a Conservative and a Labour government (the switch was
+4 July 2024); and a party talking about a topic more is not the same as slanted language.
+The scores are relative: compare sections, authors or outlets with each other, not with zero.
+
 Then open `notebooks/01_explore.ipynb` (`jupyter lab`) to poke at the data yourself.
 
 ## Where the data goes
@@ -58,7 +79,9 @@ src/ibias/
   store.py             load raw files into DuckDB
   text.py              tokenising, stopwords, n-grams
   features.py          per-article term counts -> Parquet
+  sources/hansard.py   fetch + parse Commons debates, MP parties
   analyse.py           top terms, distinctive terms (log-odds)
+  partisan.py          partisan phrases (chi-squared) and article slant
   cli.py               the `ibias` command
 tests/                 run with `pytest`
 ```
@@ -69,8 +92,6 @@ To add another outlet, write `sources/<outlet>.py` with `OUTLET` and
 ## Roadmap
 
 1. Stage 1 (this): Guardian fetch, storage, word counts, first exploration.
-2. Stage 1b: UK partisan phrases. Take Commons speeches with party labels
-   (ParlParse/TheyWorkForYou XML, or ParlSpeech V2), find phrases Labour and
-   Conservative MPs use at different rates, and score Guardian articles with them.
+2. Stage 1b (done): UK partisan phrases from Commons speeches, used to score Guardian articles.
 3. Stage 2: more outlets, better models (TF-IDF + logistic regression, embeddings, LLMs).
 4. Stage 3: a FastAPI endpoint that estimates the slant of a pasted text.
